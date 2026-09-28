@@ -1,0 +1,68 @@
+# Jev ChatGPT Plugin
+
+Jev exposes TypeSafe Jev's Noul, Choice, and Score evaluation primitives as
+read-only MCP tools for ChatGPT and other MCP clients.
+
+## Private setup
+
+Each developer supplies their own TypeSafe credential. Never commit an API key
+to this repository or put one directly in an MCP JSON configuration.
+
+1. Install the project with development dependencies:
+
+   ```powershell
+   py -3.11 -m pip install -e '.[dev]'
+   ```
+
+2. Set the credential in the current shell:
+
+   ```powershell
+   $env:TYPESAFE_API_KEY = '<your TypeSafe API key>'
+   ```
+
+3. For a stdio-capable MCP client, copy
+   `private-mcp.example.json` into that client's private configuration. The
+   example uses an environment reference rather than a literal secret; use the
+   client's secret-setting mechanism if it does not support interpolation. The
+   server command is `python -m jev_plugin.mcp.server`.
+
+4. To use the private server from ChatGPT, run the MCP server on an internal
+   Streamable HTTP endpoint:
+
+   ```powershell
+   uvicorn jev_plugin.mcp.http_app:app --host 127.0.0.1 --port 8000
+   ```
+
+   Configure OpenAI Secure MCP Tunnel to reach
+   `http://127.0.0.1:8000/mcp`. In ChatGPT Developer Mode, create a plugin
+   connection using that tunnel.
+
+The tunnel client, tunnel ID, and its OpenAI runtime API key stay local to the
+developer or organization. They are not part of this repository.
+
+For a ChatGPT Developer Mode connection through ngrok, see
+[CHATGPT_DEVELOPER_MODE.md](CHATGPT_DEVELOPER_MODE.md).
+
+## Tools
+
+- `jev_noul`: evaluate whether a proposition is supported by supplied state.
+- `jev_choice`: select one named alternative from supplied criteria.
+- `jev_score`: evaluate supplied state against an ordered rubric.
+
+## Validation
+
+```powershell
+pytest -q
+ruff check src test
+mypy src
+python -m build
+```
+
+## Architecture
+
+```text
+ChatGPT or MCP client
+        |
+        v
+MCP tools -> JevService -> JevClient -> TypeSafe Python SDK
+```
