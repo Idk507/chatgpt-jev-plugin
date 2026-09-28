@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "jev": {
+      "command": "python",
+      "args": [
+        "-m",
+        "jev_plugin.mcp.server"
+      ],
+      "env": {
+        "TYPESAFE_API_KEY": "${TYPESAFE_API_KEY}",
+        "TYPESAFE_MODEL": "jev-latest",
+        "MCP_LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
